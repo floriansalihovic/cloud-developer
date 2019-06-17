@@ -1,5 +1,7 @@
 import fs from 'fs';
 import Jimp = require('jimp');
+import { spawn } from 'child_process';
+import { join } from 'bluebird';
 
 // filterImageFromURL
 // helper function to download, filter, and save the filtered image locally
@@ -8,16 +10,16 @@ import Jimp = require('jimp');
 //    inputURL: string - a publicly accessible url to an image file
 // RETURNS
 //    an absolute path to a filtered image locally saved file
-export async function filterImageFromURL(inputURL: string): Promise<string>{
+export async function filterImageFromURL(inputURL: string, targetDir: string): Promise<string>{
     return new Promise( async resolve => {
-        const photo = await Jimp.read(inputURL);
-        const outpath = '/tmp/filtered.'+Math.floor(Math.random() * 2000)+'.jpg';
+        let photo = await Jimp.read(inputURL);
+        const outpath = [targetDir, 'filtered.'+Math.floor(Math.random() * 2000)+'.jpg'].join('/');
         await photo
         .resize(256, 256) // resize
         .quality(60) // set JPEG quality
         .greyscale() // set greyscale
-        .write(__dirname+outpath, (img)=>{
-            resolve(__dirname+outpath);
+        .write(outpath, (img)=>{
+            resolve(outpath);
         });
     });
 }
@@ -30,5 +32,19 @@ export async function filterImageFromURL(inputURL: string): Promise<string>{
 export async function deleteLocalFiles(files:Array<string>){
     for( let file of files) {
         fs.unlinkSync(file);
+    }
+}
+
+/**
+ * Calls a python script
+ */
+export async function spawnPythonProcess(path:string, sourceDir: string, targetDir:string, callback: Function, err: Function) {
+    const python = spawn('python3', ['src/image_filter.py', path, sourceDir, targetDir])
+
+    if (python !== undefined) {
+        python.stdout.on('data', (data) => { callback(); });
+        python.stderr.on('data', function (data) { err(); });
+    } else {
+        console.log(`could not spawn process`);
     }
 }
