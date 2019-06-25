@@ -1,0 +1,6 @@
+cv2-python36.zip
+cv2-python37.zip
+lambda.zip
+assets/
+*_env.sh
+__pycache__/
