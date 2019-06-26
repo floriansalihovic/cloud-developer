@@ -1,8 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
-import { request } from 'http';
-import { IndexRouter } from './controllers/v0/index.router';
+import {IndexRouter} from './controllers/v0/index.router';
 
 (async () => {
 
@@ -33,12 +31,32 @@ import { IndexRouter } from './controllers/v0/index.router';
 
   //! END @TODO1
   
-  const indexRoute = '/api/v0/';
-
+  const indexRoute = '/';
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
-    res.send( indexRoute );
+    res.send("<html>" +
+        "<body>" +
+        "<h1>@TODO1 IMPLEMENT A RESTFUL ENDPOINT</h1>" +
+        "<p>GET <a href='/filteredimage?image_url=https://timedotcom.files.wordpress.com/2019/03/kitten-report.jpg'>/filteredimage?image_url={{URL}}</a><br>" +
+        "endpoint to filter an image from a public url.<br>" +
+        "<h2>IT SHOULD</h2>" +
+        "<ol>" +
+        "<li>validate the image_url query</li>" +
+        "<li>call filterImageFromURL(image_url) to filter the image</li>" +
+        "<li>send the resulting file in the response</li>" +
+        "<li>deletes any files on the server on finish of the response</li>" +
+        "</ol>" +
+        "<h2>QUERY PARAMATERS</h2>" +
+        "<ul>" +
+        "<li>image_url: URL of a publicly accessible image</li>" +
+        "</ul>" +
+        "<h2>RETURNS</h2>" +
+        "<ul>" +
+        "<li>the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]</li>" +
+        "</ul>" +
+        "</body>" +
+        "</html>" );
   } );
   
   app.use(indexRoute, IndexRouter)

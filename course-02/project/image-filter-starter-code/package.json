@@ -29,6 +29,7 @@
     "typescript": "^3.4.5"
   },
   "dependencies": {
+    "aws-sdk": "^2.482.0",
     "express": "^4.17.0",
     "jimp": "^0.6.4"
   }
