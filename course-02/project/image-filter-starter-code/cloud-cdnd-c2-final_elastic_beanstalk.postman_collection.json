@@ -1,12 +1,12 @@
 {
 	"info": {
-		"_postman_id": "099bed82-c457-47c5-896d-c7d57cd8eeed",
-		"name": "cloud-cdnd-c2-final",
+		"_postman_id": "20785fef-07ca-4405-a30e-df2b9809d986",
+		"name": "cloud-cdnd-c2-final Elastic Beanstalk",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "localhost:8081",
+			"name": "udagram-imageserver-flosal-dev-dev",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -54,9 +54,9 @@
 	],
 	"variable": [
 		{
-			"id": "d90d6f15-38be-4615-81bd-187c437b9970",
+			"id": "9d5bef82-7e9d-43f0-936d-71d031eb924e",
 			"key": "HOST",
-			"value": "localhost:8081",
+			"value": "udagram-imageserver-flosal-dev-dev.eu-central-1.elasticbeanstalk.com",
 			"type": "string"
 		}
 	]
