@@ -8,7 +8,7 @@ import {IndexRouter} from './controllers/v0/index.router';
   const app = express();
 
   // Set the network port
-  const port = process.env.PORT || 8082;
+  const port = process.env.PORT || 8081;
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -43,7 +43,7 @@ import {IndexRouter} from './controllers/v0/index.router';
         "<h2>IT SHOULD</h2>" +
         "<ol>" +
         "<li>validate the image_url query</li>" +
-        "<li>call filterImageFromURL(image_url) to filter the image</li>" +
+        "<li>call filterImageFromURL(image_url) to filter the image - removed as the filtering is done in an AWS Lambda</li>" +
         "<li>send the resulting file in the response</li>" +
         "<li>deletes any files on the server on finish of the response</li>" +
         "</ol>" +

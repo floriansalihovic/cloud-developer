@@ -1,5 +1,5 @@
 import {Request, Response, Router} from 'express';
-import {externalImageAsBase64} from '../../../../util/util';
+import {URL} from "url";
 import jimp = require('jimp');
 
 const AWS = require('aws-sdk');
@@ -7,78 +7,76 @@ const AWS = require('aws-sdk');
 
 const router: Router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
-
-    if (!!process.env.AWS_ACCESS_KEY_ID || !!process.env.AWS_SECRET_ACCESS_KEY) {
-        res.writeHead(403, "Error");
-        res.end();
-        res.send('<html>' +
+router.get('/', (req: Request, res: Response) => {
+    console.log(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+        res.writeHead(403, ('<html>' +
             '<body>' +
             '<h2>Unauthorized</h2>' +
             '<h3>Possible root cause</h3>' +
             '<p>The application appears to be running locally. AWS_SECRET_ACCESS_KEY and ' +
             'AWS_SECRET_ACCESS_KEY might not be set or a not authorizing against the AWS Lambda instance running ' +
-            'the image detection. Using the the instance running at EBS will authenticate correctly.</p>' +
+            'the image detection. Using the the instance running at <a href="http://udagram-imageserver-flosal-dev-dev.eu-central-1.elasticbeanstalk.com">' +
+            'Elastic Beanstalk</a> will authenticate correctly and with a valid reference to a <code>jpg</code> or ' +
+            '<code>jpeg</code> an image rendering detected edges will be rendered.</p>' +
             '</body>' +
-            '</html>');
-        return;
+            '</html>'));
+        res.end();
     } else {
         const imageUrl = req.query.image_url;
 
         if (!Boolean(imageUrl) || imageUrl.length == 0) {
             res.status(204).send("/filteredImage: query parameter \"image_url\" must not be empty");
             return;
-        }
-
-        const base64 = await externalImageAsBase64(imageUrl);
-        const lambda = new AWS.Lambda();
-        const params = {
-            FunctionName: 'handler', /* required */
-            Payload: JSON.stringify({
-                body: base64
-            })
-        };
-
-        lambda.invoke(params, async function (err: any, data: any) {
-            if (err) {
-                res.writeHead(403, "Error");
-                res.end('<html>' +
-                    '<body>' +
-                    '<h3>Internal Server Error</h3>' +
-                    '<p>' + err + '</p>' +
-                    '<h2>Possible root cause</h2>' +
-                    '<p>The application appears to be running locally. AWS_SECRET_ACCESS_KEY and ' +
-                    'AWS_SECRET_ACCESS_KEY might not be set or a not authorizing against the AWS Lambda instance running ' +
-                    'the image detection. Using the the instance running at EBS will authenticate correctly.</p>' +
-                    '</body>' +
-                    '</html>');
-            } else {
-                let err, image, binary;
-                [err, image] = await to(jimp.read(Buffer.from(JSON.parse(data['Payload']).body, 'base64')));
-                if (err) {
-                    res.status(500).send("Internal server error");
-                    return;
+        } else {
+            try {
+                const url = new URL(imageUrl);
+                if (!(imageUrl.endsWith('.jpg') || imageUrl.endsWith('.jpeg'))) {
+                    res.status(200).send('/filteredImage: only .jpg and .jpeg extensions are allowed');
                 } else {
-                    [err, binary] = await to(image.getBufferAsync(jimp.MIME_JPEG));
-                    if (err) {
-                        res.status(500).send("Internal server error");
-                    } else {
-                        res.writeHead(200, {'Content-Type': 'image/jpg'});
-                        res.end(binary, 'binary')
-                    }
+                    // @ts-ignore
+                    jimp.read(imageUrl, (err: any, image: any) => {
+                        if (err) {
+                            throw err;
+                        }
+                        console.debug(`loaded image from ${imageUrl} successfully`);
+                        image.getBase64(jimp.MIME_JPEG, (err: any, base64String: any) => {
+                            if (err) {
+                                throw err;
+                            }
+                            const payload = JSON.stringify({
+                                body: base64String.substr('data:image/jpg;base64,'.length + 1)
+                            });
+                            console.debug(`invoking lambda with base64 string ${base64String.substr(0, 50)}...`);
+                            new AWS.Lambda().invoke({
+                                FunctionName: 'handler',
+                                Payload: payload
+                            }, (err: any, data: any) => {
+                                if (err) {
+                                    throw err;
+                                }
+                                // @ts-ignore
+                                jimp.read(Buffer.from(JSON.parse(data['Payload']).body, 'base64'), (err: any, value: any) => {
+                                    if (err) {
+                                        throw err;
+                                    }
+                                    value.getBuffer(jimp.MIME_JPEG, (err: any, buffer: any) => {
+                                        if (err) {
+                                            throw err;
+                                        }
+                                        res.writeHead(200, {'Content-Type': 'image/jpg'});
+                                        res.end(buffer, 'binary')
+                                    });
+                                });
+                            });
+                        });
+                    });
                 }
+            } catch (err) {
+                res.status(500).send(err);
             }
-        });
+        }
     }
 });
-
-// https://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
-function to(promise: any) {
-    return promise.then((data: any) => {
-        return [null, data];
-    }).catch((err: any) => {
-        return [err, null];
-    });
-}
 
 export const ImageRouter: Router = router;
