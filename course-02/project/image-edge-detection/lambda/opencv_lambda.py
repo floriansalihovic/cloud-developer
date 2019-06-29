@@ -18,6 +18,15 @@ def transform(arg0):
 
 
 def handler(event, context):
+    print("body: " + event["body"])
+    if not event["body"]:
+        return {
+            "isBase64Encoded": True,
+            "statusCode": 500,
+            "headers": {"content-type": "text/plain"},
+            "body": "{\"error: \": \"Could not empty input data.\"}"
+        }
+
     transformed = transform(event["body"])
     base64_string = transformed.decode('UTF-8')
 

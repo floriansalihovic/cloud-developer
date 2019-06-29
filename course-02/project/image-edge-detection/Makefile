@@ -80,6 +80,12 @@ aws_lambda_publish: aws_lambda_upload
 		--profile ${AWS_CLI_PROFILE} \
 		--region ${AWS_REGION}
 
+aws_lambda_delete:
+	aws lambda delete-function \
+		--function-name ${AWS_LAMBDA_FUNCTION_NAME} \
+		--profile ${AWS_CLI_PROFILE} \
+		--region ${AWS_REGION}
+
 aws_lambda_layer_upload:
 	aws s3 cp cv2-python36.zip s3://${AWS_S3_BUCKET_NAME} \
 		--profile ${AWS_CLI_PROFILE} \
