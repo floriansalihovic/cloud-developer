@@ -11,17 +11,11 @@ You'll need to create a new node server. Open a new terminal within the project 
 
 ### Create a new endpoint in the server.ts file
 
-The starter code has a task for you to complete an endpoint in `./src/server.ts` which uses query paramater to download an image from a public URL, filter the image, and return the result.
-
-We've included a few helper functions to handle some of these concepts and we're importing it for you at the top of the `./src/server.ts`  file.
-
-```typescript
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
-```
+The starter code has a task for you to complete an endpoint in `./src/server.ts` which uses query parameter to download an image from a public URL, filter the image, and return the result.
 
 ### Deploying your system
 
-Follow the process described in the course to `eb init` a new application and `eb create` a new enviornment to deploy your image-filter service! Don't forget you can use `eb deploy` to push changes.
+Follow the process described in the course to `eb init` a new application and `eb create` a new environment to deploy your image-filter service! Don't forget you can use `eb deploy` to push changes.
 
 ## Stand Out (Optional)
 
@@ -29,12 +23,10 @@ Follow the process described in the course to `eb init` a new application and `e
 
 If you're feeling up to it, refactor the course RESTapi to make a request to your newly provisioned image server.
 
-### Authentication
+## Deployments
 
-Prevent requests without valid authentication headers.
-> !!NOTE if you choose to submit this, make sure to add the token to the postman collection and export the postman collection file to your submission so we can review!
+The application is currently deployed at
+- [http://udagram-imageserver-flosal-dev-dev](http://udagram-imageserver-flosal-dev-dev.eu-central-1.elasticbeanstalk.com).
 
-### Custom Domain Name
-
-Add your own domain name and have it point to the running services (try adding a subdomain name to point to the processing server)
-> !NOTE: Domain names are not included in AWS’ free tier and will incur a cost.
+The applications architecture involves a Nodejs server and a Python based Lambda, which depends on a Lambda Layer
+providing the OpenCV lib. The two components exchange base64 encoded data, avoiding persisting files to disk. 
