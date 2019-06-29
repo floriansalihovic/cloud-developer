@@ -34,6 +34,7 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 node_modules
 venv/
+__pycache__/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
